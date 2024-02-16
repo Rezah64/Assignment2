@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMP 3962 - Help</title>
+    <style>
+        
+        body, h1, h2, h3, h4, h5, h6, p, ul, ol, li {
+            margin: 0;
+            padding: 0;
+        }
+
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa; 
+        }
+
+        header {
+            background-color: #232f3e; 
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        main {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        footer {
+            background-color: #232f3e; 
+            color: white;
+            text-align: center;
+            padding: 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+   
+        nav {
+            background-color: #385f85; 
+            padding: 10px 0;
+        }
+
+        ul.link {
+            display: flex;
+            justify-content: center; 
+            list-style: none;
+            padding: 0;
+        }
+
+        ul.link li {
+            margin: 0 20px; 
+        }
+
+        ul.link li a {
+            text-decoration: none;
+            color: white;
+            font-size: 18px; 
+            font-weight: bold; 
+        }
+
+        
+        .help-content {
+            margin-top: 30px;
+        }
+
+        .help-item {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #232f3e; 
+        }
+
+       
+        .footer-text {
+            font-style: italic;
+            color: #f8f9fa; 
+        }
+        .schedule-image{
+            width: 60%;
+            height: auto;
+        }
+        
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Hello from COMP 3962</h1>
+        <h2>Assignment #2</h2>
+    </header>
+    <nav>
+        <ul class="link">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="main.html">Main</a></li>
+            <li><a href="help.html">Help</a></li>
+        </ul>
+    </nav>
+    <main>
+         <h3>To-Do List</h3>
+        <ul id="todo-list">
+           
+        </ul>
+        <form id="todo-form">
+            <input type="text" id="todo-input" placeholder="Enter new to-do item">
+            <button  type="submit"style="background-color: pink;" >Add Item</button>
+        </form>
+    </main>
+    <footer>
+        <p>Created by <span class="footer-text">Reza Hedieloo</span></p>
+    </footer>
+  <script>
+        const todoForm = document.getElementById('todo-form');
+        const todoInput = document.getElementById('todo-input');
+        const todoList = document.getElementById('todo-list');
+
+        async function addTodoItem(todoText) {
+            try {
+                const response = await fetch('http://localhost:3000/todos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ todoText })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to add todo item');
+                }
+
+                // Refresh the to-do list after adding a new item
+                fetchTodos();
+            } catch (error) {
+                console.error('Error adding todo:', error);
+            }
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            const text = todoInput.value.trim();
+
+            if (text === '') {
+                alert('Please enter a to-do item.');
+                return;
+            }
+
+            await addTodoItem(text);
+            todoInput.value = '';
+        }
+
+        async function fetchTodos() {
+            try {
+                const response = await fetch('http://localhost:3000/todos');
+                const data = await response.json();
+                
+                // Clear existing items
+                todoList.innerHTML = '';
+
+                // Add fetched to-do items to the list
+                data.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = item.text;
+                    todoList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Error fetching todos:', error);
+            }
+        }
+
+        todoForm.addEventListener('submit', handleSubmit);
+
+        // Fetch initial to-do list on page load
+        fetchTodos();
+    </script>
+
+</body>
+</html>
